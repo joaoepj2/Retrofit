@@ -8,9 +8,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -20,11 +22,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewModelScope
 import com.example.retrofit.ui.theme.RetrofitTheme
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+
 
 
 class MainActivity : ComponentActivity() {
@@ -111,21 +112,22 @@ class MensagemViewModel: ViewModel() {
 
 
 class ContagemViewModel: ViewModel() {
-    var contagem by mutableStateOf<Int?>(null)
+    private var _contagem = MutableStateFlow<Int?>(null)
+    val contador: StateFlow<Int?> = _contagem
+
     init {
         fetchContagem()
     }
 
-    private fun fetchContagem() {
+    fun fetchContagem() {
         viewModelScope.launch {
             try {
-                contagem = restapi2.getContagem()
+                _contagem.value = restapi2.getContagem()
             } catch (e: Exception) {
                 //contagem = "Erro: ${e.localizedMessage}"
                 Log.d("API", "Erro: ${e.localizedMessage}")
             }
         }
-
     }
 }
 
@@ -151,18 +153,21 @@ fun Mensagem(viewModel: MensagemViewModel = viewModel()) {
 
 @Composable
 fun Contagem(viewModel: ContagemViewModel = viewModel()) {
-    val respostaVm = viewModel.contagem
-    when {
-        respostaVm != null -> {
-            Text(text = respostaVm.toString())
-        }
+    val valor by viewModel.contador.collectAsState()
+
+    Text(text = "$valor")
+
+    Button(onClick = { viewModel.fetchContagem() }) {
+        Text(text = "Contar")
     }
 }
 
 @Composable
 fun Tela1() {
+
     Column {
         Mensagem()
         Contagem()
+
     }
 }
