@@ -39,7 +39,7 @@ class MainActivity : ComponentActivity() {
                             name = "Android",
                             modifier = Modifier.padding(innerPadding)
                         )
-                        MeuTexto()
+                        Tela1()
                         /*runBlocking {
                             //val texto = restapi.getPhotos()
                             val texto = restapi2.getMensagem()
@@ -73,12 +73,8 @@ fun GreetingPreview() {
 
 class RespostaViewModel: ViewModel() {
     var resposta by mutableStateOf<String?>(null)
-    var mensagem by mutableStateOf<String?>(null)
-    var contagem by mutableStateOf<Int?>(null)
     init {
         fetchResposta()
-        fetchMensagem()
-        fetchContagem()
     }
 
     private fun fetchResposta() {
@@ -92,7 +88,13 @@ class RespostaViewModel: ViewModel() {
         }
 
     }
+}
 
+class MensagemViewModel: ViewModel() {
+    var mensagem by mutableStateOf<String?>(null)
+    init {
+        fetchMensagem()
+    }
 
     private fun fetchMensagem() {
         viewModelScope.launch {
@@ -104,6 +106,14 @@ class RespostaViewModel: ViewModel() {
             }
         }
 
+    }
+}
+
+
+class ContagemViewModel: ViewModel() {
+    var contagem by mutableStateOf<Int?>(null)
+    init {
+        fetchContagem()
     }
 
     private fun fetchContagem() {
@@ -117,27 +127,42 @@ class RespostaViewModel: ViewModel() {
         }
 
     }
-
-
-
 }
 
 @Composable
-fun MeuTexto(viewModel: RespostaViewModel = viewModel()) {
+fun Resposta(viewModel: RespostaViewModel = viewModel()) {
     val respostaVm = viewModel.resposta
-    val mensagemVm = viewModel.mensagem
-    val contagemVm = viewModel.contagem
     when {
-        //respostaVm != null -> {
-        //    Text(text = respostaVm)
-        //}
-        mensagemVm != null -> {
-            Text(text = mensagemVm)
+        respostaVm != null -> {
+            Text(text = respostaVm)
         }
-        contagemVm != null -> {
-            Text(text = contagemVm.toString())
-        }
-
     }
+}
 
+@Composable
+fun Mensagem(viewModel: MensagemViewModel = viewModel()) {
+    val respostaVm = viewModel.mensagem
+    when {
+        respostaVm != null -> {
+            Text(text = respostaVm)
+        }
+    }
+}
+
+@Composable
+fun Contagem(viewModel: ContagemViewModel = viewModel()) {
+    val respostaVm = viewModel.contagem
+    when {
+        respostaVm != null -> {
+            Text(text = respostaVm.toString())
+        }
+    }
+}
+
+@Composable
+fun Tela1() {
+    Column {
+        Mensagem()
+        Contagem()
+    }
 }
